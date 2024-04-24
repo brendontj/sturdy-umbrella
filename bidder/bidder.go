@@ -1,5 +1,12 @@
 package bidder
 
+import "fmt"
+
+var (
+	ErrInitialBidIsGreaterThanMaxBid = fmt.Errorf("initial bid is greater than max bid")
+	ErrInvalidBidValue               = fmt.Errorf("invalid bid value, bid values should be greater than zero")
+)
+
 type Bidder struct {
 	Name            string
 	InitialBid      int
@@ -24,15 +31,23 @@ func (b *Bidder) IncrementCurrentBid() {
 	}
 }
 
-func New(name string, initialBid, maxBid, incrementAmount int) Bidder {
-	return Bidder{
+func New(name string, initialBid, maxBid, incrementAmount int) (*Bidder, error) {
+	if initialBid > maxBid {
+		return nil, ErrInitialBidIsGreaterThanMaxBid
+	}
+
+	if initialBid <= 0 || maxBid <= 0 || incrementAmount <= 0 {
+		return nil, ErrInvalidBidValue
+	}
+
+	return &Bidder{
 		Name:            name,
 		InitialBid:      initialBid,
 		MaxBid:          maxBid,
 		IncrementAmount: incrementAmount,
 		currentBid:      initialBid,
 		timesIncreased:  0,
-	}
+	}, nil
 }
 
 type Heap []Bidder
